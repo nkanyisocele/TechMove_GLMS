@@ -1,6 +1,7 @@
 using GLMS.Web.Data;
 using GLMS.Web.Interfaces;
 using GLMS.Web.Repositories;
+using GLMS.Web.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +20,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IContractRepository, ContractRepository>();
 builder.Services.AddScoped<IClientRepository, ClientRepository>();
 builder.Services.AddScoped<IServiceRequestRepository, ServiceRequestRepository>();
+builder.Services.AddScoped<IContractService, ContractService>();
 
 
 var app = builder.Build();
