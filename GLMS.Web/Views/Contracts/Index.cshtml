@@ -1,0 +1,63 @@
+﻿@model IEnumerable<GLMS.Web.Models.Contract>
+
+@{
+    ViewData["Title"] = "Contract Management Hub";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-5 text-primary">Global Logistics Management System</h1>
+        <a asp-action="Create" class="btn btn-success shadow-sm">
+            <i class="bi bi-plus-circle"></i> Create New Contract
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Client</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Status</th>
+                        <th>Service Level</th>
+                        <th class="text-center">Agreement</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold">@item.Client?.Name</td>
+                            <td>@item.StartDate.ToShortDateString()</td>
+                            <td>@item.EndDate.ToShortDateString()</td>
+                            <td>
+                                @* Visual badge for status logic *@
+                                <span class="badge @(item.Status == "Active" ? "bg-success" :
+                                                                                         item.Status == "Expired" ? "bg-danger" : "bg-warning text-dark")">
+                                @item.Status
+                            </span>
+                        </td>
+                        <td>@item.ServiceLevel</td>
+                        <td class="text-center">
+                            @if (!string.IsNullOrEmpty(item.SignedAgreementFileName))
+                                {
+                                    @* Link to the file we saved in wwwroot/uploads *@
+                                    <a href="~/uploads/contracts/@item.SignedAgreementFileName"
+                                       target="_blank" class="btn btn-sm btn-outline-info">
+                                        View PDF
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">No File</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

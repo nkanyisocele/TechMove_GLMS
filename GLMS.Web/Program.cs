@@ -23,6 +23,7 @@ builder.Services.AddScoped<IServiceRequestRepository, ServiceRequestRepository>(
 builder.Services.AddScoped<IContractService, ContractService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
+builder.Services.AddScoped<IFileService, FileService>();
 
 
 var app = builder.Build();
