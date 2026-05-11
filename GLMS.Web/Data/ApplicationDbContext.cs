@@ -42,6 +42,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<Models.Contract>()
             .Property(c => c.Status)
             .HasDefaultValue("Draft");
+
+
     }
+
 }
 
