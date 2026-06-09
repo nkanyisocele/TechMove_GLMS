@@ -1,4 +1,4 @@
-﻿using GLMS.Web.Interfaces;
+﻿using GLMS.API.Interfaces;
 using Newtonsoft.Json.Linq;
 
 namespace GLMS.Web.Services;

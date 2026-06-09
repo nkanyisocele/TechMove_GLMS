@@ -1,7 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace GLMS.Web.Models;
+namespace GLMS.API.Models;
+
 
 public class ServiceRequest
 {

@@ -1,4 +1,4 @@
-﻿namespace GLMS.Web.Interfaces;
+﻿namespace GLMS.API.Interfaces;
 
 public interface IFileService
 {

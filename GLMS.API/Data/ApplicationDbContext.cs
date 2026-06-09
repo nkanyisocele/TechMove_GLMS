@@ -1,11 +1,11 @@
 ﻿
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics.Contracts;
-using GLMS.Web.Models;
+using GLMS.API.Models;
 
 
-namespace GLMS.Web.Data;
+
+namespace GLMS.API.Data;
 
 // Inheriting from IdentityDbContext satisfies the 'Identity' requirement
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -13,7 +13,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 {
     // Define your tables (DbSets)
     public DbSet<Client> Clients { get; set; }
-    public DbSet<Models.Contract> Contracts { get; set; }
+    public DbSet<Contract> Contracts { get; set; }
     public DbSet<ServiceRequest> ServiceRequests { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)

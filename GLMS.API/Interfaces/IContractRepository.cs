@@ -1,6 +1,6 @@
-﻿using GLMS.Web.Models;
+﻿using GLMS.API.Models;
 
-namespace GLMS.Web.Interfaces;
+namespace GLMS.API.Interfaces;
 
 public interface IContractRepository
 {
@@ -9,5 +9,5 @@ public interface IContractRepository
     Task AddContractAsync(Contract contract);
     Task UpdateContractAsync(Contract contract);
     Task DeleteContractAsync(int id);
-    Task SaveAsync();
 }
+

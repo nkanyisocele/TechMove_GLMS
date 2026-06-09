@@ -1,52 +1,58 @@
-﻿using GLMS.Web.Interfaces;
-using GLMS.Web.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc;
+using GLMS.Web.Services;
+using GLMS.API.Models; // Reusing the same core models
 
-namespace GLMS.Web.Controllers;
-
-public class ContractsController(
-    IContractRepository contractRepo,
-    IClientRepository clientRepo,
-    IFileService fileService) : Controller
+namespace GLMS.Web.Controllers
 {
-    // 1. List all contracts (The "Hub")
-    public async Task<IActionResult> Index()
+    public class ContractsController : Controller
     {
-        var contracts = await contractRepo.GetAllContractsAsync();
-        return View(contracts);
-    }
+        private readonly IContractService _contractService;
 
-    // 2. GET: Create Contract
-    public async Task<IActionResult> Create()
-    {
-        // Load clients into a dropdown for the UI
-        var clients = await clientRepo.GetAllClientsAsync();
-        ViewBag.ClientId = new SelectList(clients, "ClientId", "Name");
-        return View();
-    }
-
-    // 3. POST: Create Contract
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(Contract contract, IFormFile pdfFile)
-    {
-        if (ModelState.IsValid)
+        // Inject the HTTP client service layer via constructor injection
+        public ContractsController(IContractService contractService)
         {
-            // Handle File Upload (Rubric Item 4)
-            if (pdfFile != null)
-            {
-                contract.SignedAgreementFileName = await fileService.UploadContractFileAsync(pdfFile);
-            }
-
-            await contractRepo.AddContractAsync(contract);
-            await contractRepo.SaveAsync();
-            return RedirectToAction(nameof(Index));
+            _contractService = contractService;
         }
 
-        // If something failed, reload the clients dropdown
-        var clients = await clientRepo.GetAllClientsAsync();
-        ViewBag.ClientId = new SelectList(clients, "ClientId", "Name");
-        return View(contract);
+        // GET: Contracts
+        public async Task<IActionResult> Index()
+        {
+            var contracts = await _contractService.GetAllContractsAsync();
+            return View(contracts); // Renders Index.cshtml view with data from the API
+        }
+
+        // GET: Contracts/Details/5
+        public async Task<IActionResult> Details(int id)
+        {
+            var contract = await _contractService.GetContractByIdAsync(id);
+            if (contract == null)
+            {
+                return NotFound();
+            }
+            return View(contract);
+        }
+
+        // GET: Contracts/Create
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        // POST: Contracts/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create([Bind("ContractId,ClientName,Status,Value")] Contract contract)
+        {
+            if (ModelState.IsValid)
+            {
+                var success = await _contractService.CreateContractAsync(contract);
+                if (success)
+                {
+                    return RedirectToAction(nameof(Index));
+                }
+                ModelState.AddModelError("", "Unable to create contract via the backend API API.");
+            }
+            return View(contract);
+        }
     }
 }

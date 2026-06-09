@@ -1,7 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.Contracts;
+namespace GLMS.API.Models;
 
-namespace GLMS.Web.Models;
+
+
 
 public class Client
 {

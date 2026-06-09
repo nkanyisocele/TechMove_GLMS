@@ -1,5 +1,8 @@
-﻿using GLMS.Web.Interfaces;
+﻿
 using GLMS.Web.Models;
+using GLMS.API.Interfaces;
+using GLMS.API.Models;
+
 using Microsoft.AspNetCore.Mvc;
 
 namespace GLMS.Web.Controllers;

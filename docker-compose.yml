@@ -1,0 +1,47 @@
+version: '3.4'
+
+services:
+  # Container 1: The underlying Database engine
+  sql-server-db:
+    image: ://microsoft.com
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=YourSecurePassword123!
+    ports:
+      - "1433:1433"
+    networks:
+      - glms-network
+
+  # Container 2: Decoupled API Service Layer
+  glms-backend-api:
+    image: glms-backend-api
+    build:
+      context: .
+      dockerfile: GLMS.API/Dockerfile
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sql-server-db;Database=GLMS_Db;User Id=sa;Password=YourSecurePassword123!;TrustServerCertificate=True;
+    ports:
+      - "7123:8080"
+    depends_on:
+      - sql-server-db
+    networks:
+      - glms-network
+
+  # Container 3: Presentation UI Client App
+  glms-frontend-web:
+    image: glms-frontend-web
+    build:
+      context: .
+      dockerfile: GLMS.Web/Dockerfile
+    environment:
+      - ContractServiceSettings__BaseAddress=http://glms-backend-api/
+    ports:
+      - "8080:8080"
+    depends_on:
+      - glms-backend-api
+    networks:
+      - glms-network
+
+networks:
+  glms-network:
+    driver: bridge

@@ -1,9 +1,9 @@
-﻿using GLMS.Web.Data;
-using GLMS.Web.Interfaces;
-using GLMS.Web.Models;
+﻿using GLMS.API.Data;
+using GLMS.API.Interfaces;
+using GLMS.API.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace GLMS.Web.Repositories;
+namespace GLMS.API.Repositories;
 
 public class ServiceRequestRepository(ApplicationDbContext context) : IServiceRequestRepository
 {

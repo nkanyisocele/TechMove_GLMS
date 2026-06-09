@@ -1,6 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using GLMS.Web.Models;
+using System.ComponentModel.DataAnnotations;
+namespace GLMS.API.Models;
 
-namespace GLMS.Web.Models;
 
 public class Contract
 {

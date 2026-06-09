@@ -1,6 +1,6 @@
-﻿using GLMS.Web.Models;
+﻿using GLMS.API.Models;
 
-namespace GLMS.Web.Interfaces;
+namespace GLMS.API.Interfaces;
 
 public interface IContractService
 {

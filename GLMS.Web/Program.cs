@@ -1,42 +1,29 @@
-using GLMS.Web.Data;
-using GLMS.Web.Interfaces;
-using GLMS.Web.Repositories;
 using GLMS.Web.Services;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using GLMS.API.Interfaces;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+// 1. Configure the HttpClient with explicit full namespaces to avoid ambiguity
+builder.Services.AddHttpClient<GLMS.Web.Services.IContractService, GLMS.Web.Services.ContractService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7123/");
+});
 
-builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+
+// 2. Add standard MVC Services
 builder.Services.AddControllersWithViews();
 
-builder.Services.AddScoped<IContractRepository, ContractRepository>();
-builder.Services.AddScoped<IClientRepository, ClientRepository>();
-builder.Services.AddScoped<IServiceRequestRepository, ServiceRequestRepository>();
-builder.Services.AddScoped<IContractService, ContractService>();
-builder.Services.AddHttpClient();
+// 3. Register decoupled local services (No repositories or database contexts allowed here!)
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<IFileService, FileService>();
-
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseMigrationsEndPoint();
-}
-else
+if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -50,6 +37,5 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-app.MapRazorPages();
 
 app.Run();

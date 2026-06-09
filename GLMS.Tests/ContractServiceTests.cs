@@ -1,63 +1,53 @@
-﻿using GLMS.Web.Interfaces;
-using GLMS.Web.Models;
-using GLMS.Web.Services;
-using Moq;
+﻿using GLMS.API.Models;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.VisualStudio.TestPlatform.TestHost;
+using System.Net;
+using System.Net.Http.Json;
 using Xunit;
 
 namespace GLMS.Tests;
 
-public class ContractServiceTests
+// Using WebApplicationFactory to spin up an in-memory test instance of your real API running in program.cs
+public class ContractIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
 {
-    private readonly Mock<IContractRepository> _mockRepo;
-    private readonly ContractService _service;
+    private readonly HttpClient _client;
 
-    public ContractServiceTests()
+    public ContractIntegrationTests(WebApplicationFactory<Program> factory)
     {
-        _mockRepo = new Mock<IContractRepository>();
-        _service = new ContractService(_mockRepo.Object);
+        // Creates an isolated HttpClient mapped to the in-memory test API instance
+        _client = factory.CreateClient();
     }
 
     [Fact]
-    public async Task IsContractActive_ShouldReturnFalse_WhenContractIsExpired()
+    public async Task Contract_CreateThenRead_Lifecycle_MaintainsDataIntegrity()
     {
-        // Arrange: Create a contract that ended yesterday
-        var expiredContract = new Contract
+        // 1. Arrange: Define a test contract payload matching your API specifications
+        var newContract = new Contract
         {
-            ContractId = 1,
+            ContractId = 999, 
             Status = "Active",
-            StartDate = DateTime.Now.AddMonths(-2),
-            EndDate = DateTime.Now.AddDays(-1)
-        };
-
-        _mockRepo.Setup(repo => repo.GetContractByIdAsync(1))
-                 .ReturnsAsync(expiredContract);
-
-        // Act
-        var result = await _service.IsContractActiveAsync(1);
-
-        // Assert: Logic should catch that the date has passed
-        Assert.False(result);
-    }
-
-    [Fact]
-    public async Task IsContractActive_ShouldReturnFalse_WhenStatusIsOnHold()
-    {
-        // Arrange: Contract is within dates but marked "On Hold"
-        var onHoldContract = new Contract
-        {
-            ContractId = 2,
-            Status = "On Hold",
             StartDate = DateTime.Now.AddDays(-1),
-            EndDate = DateTime.Now.AddDays(10)
+            EndDate = DateTime.Now.AddDays(30)
         };
 
-        _mockRepo.Setup(repo => repo.GetContractByIdAsync(2))
-                 .ReturnsAsync(onHoldContract);
+        // 2. Act: Part A - Send a POST request to add the contract to the system
+        var postResponse = await _client.PostAsJsonAsync("api/contracts", newContract);
 
-        // Act
-        var result = await _service.IsContractActiveAsync(2);
+        // 3. Assert: Part A - Verify the creation endpoint returns 201 Created
+        Assert.Equal(HttpStatusCode.Created, postResponse.StatusCode);
 
-        // Assert
-        Assert.False(result);
+        // 4. Act: Part B - Instantly fetch all records using GET to confirm the database persistent write
+        var getResponse = await _client.GetAsync("api/contracts");
+        Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+        var contracts = await getResponse.Content.ReadFromJsonAsync<IEnumerable<Contract>>();
+
+        // 5. Assert: Part B - Prove data integrity by ensuring the written object perfectly matches our intent
+        Assert.NotNull(contracts);
+        var savedContract = contracts.FirstOrDefault(c => c.ContractId == 999);
+
+        Assert.NotNull(savedContract);
+        Assert.Equal("Active", savedContract.Status);
     }
 }
+

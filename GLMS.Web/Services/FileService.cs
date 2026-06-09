@@ -1,4 +1,4 @@
-﻿using GLMS.Web.Interfaces;
+﻿using GLMS.API.Interfaces;
 
 namespace GLMS.Web.Services;
 
